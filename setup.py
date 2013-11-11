@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from setuptools import setup, find_packages
+from setuptools import setup
 
 readme = open('README.rst').read()
 history = open('HISTORY.rst').read().replace('.. :changelog:', '')
@@ -13,12 +13,12 @@ requires = [
 setup(
     name='manuscript',
     version='0.1.0',
-    description='Manuscript helps you manage you python scripts and their dependencies',
+    description='Manuscript helps you manage your python scripts and their dependencies',
     long_description=readme + '\n\n' + history,
     author='Georges Dubus',
     author_email='georges.dubus@gmail.com',
     url='https://github.com/madjar/manuscript',
-    packages=find_packages(),
+    py_modules=['manuscript'],
     include_package_data=True,
     entry_points={
         'console_scripts': [

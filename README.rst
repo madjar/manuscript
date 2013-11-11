@@ -9,7 +9,7 @@ Manuscript
         :target: https://crate.io/packages/manuscript?version=latest
 
 
-Manuscript helps you manage you python scripts and their dependencies
+Manuscript helps you manage your python scripts and their dependencies
 
 Python still is a scripting language, and it is awesome for
 this. Moreover, we now have some great libraries that make writing

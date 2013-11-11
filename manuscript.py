@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #deps: docopt pathlib
-"""Manuscript. Manage you scripts and their dependencies.
+"""Manuscript. Manage your scripts and their dependencies.
 
 Just add a line of the form "#deps: requests docopt pathlib" to your script,
 and manuscript will install them in a virtualenv and create a wrapper.
