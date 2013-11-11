@@ -17,26 +17,26 @@ scripts even easier, like requests, docopt or pathlib. However, having
 to install them system-wide, or start worrying about virtualenv for
 just one script is annoying. Manuscript is here to help you handle that.
 
-Just add a line of the form `#deps: requests docopt pathlib` to your script,
+Just add a line of the form ``#deps: requests docopt pathlib`` to your script,
 and manuscript will install them in a virtualenv and create a wrapper for you.
 
 Install
 -------
 
-You can get it on `pypi`_ with the usual `pip install manuscript`.
+You can get it on `pypi`_ with the usual ``pip install manuscript``.
 
 You can also install manuscript using manuscript! For this, use this line get manuscript and its dependencies, and use manuscript to install itself::
 
     cd /tmp && wget https://bitbucket.org/pitrou/pathlib/raw/b393963cdf9dd02b13fe5ac53709f4d4bc48363a/pathlib.py https://raw.github.com/docopt/docopt/0.6.1/docopt.py https://raw.github.com/madjar/manuscript/master/manuscript.py && python3 manuscript.py install -c manuscript.py
 
-Once it's done, I recommend you add `~/.manuscript/bin/` to your path, to make it easier to access installed scripts.
+Once it's done, I recommend you add ``~/.manuscript/bin/`` to your path, to make it easier to access installed scripts.
 
 .. _`pypi`: https://pypi.python.org/pypi/manuscript
 
 Usage
 -----
 
-You just wrote `some_awesome_script.py` that uses `requests` and `docopt`, and you want to use it on your system without worrying about the dependencies. Just add this line somewhere in your script::
+You just wrote ``some_awesome_script.py`` that uses ``requests`` and ``docopt``, and you want to use it on your system without worrying about the dependencies. Just add this line somewhere in your script::
 
   #deps requests docopt
 
@@ -44,9 +44,9 @@ Then run manuscript::
 
   manuscript install some_awesome_script.py
 
-This will install all the dependencies in a virtualenv and create a wrapper around the script as `~/.manuscript/bin/some_awesome_script`.
+This will install all the dependencies in a virtualenv and create a wrapper around the script as ``~/.manuscript/bin/some_awesome_script``.
 
-The virtualenv will use the interpreter mentioned in the script's shebang, falling back to `python` if none is found. You can force an interpreter with the `-i` option, like so::
+The virtualenv will use the interpreter mentioned in the script's shebang, falling back to ``python`` if none is found. You can force an interpreter with the ``-i`` option, like so::
 
   manuscript install some_awesome_script.py -i pypy
 
@@ -57,7 +57,7 @@ If you edit you script to add more dependencies, just run::
 This will install all missing dependencies for all the scripts.
 
 
-Finally, if you want to use manuscript on a script that won't last (something downloaded from the internet that sits on your `/tmp` for example), just add the `-c` argument: manuscript will first copy the script to a safe place, then do the whole dance.
+Finally, if you want to use manuscript on a script that won't last (something downloaded from the internet that sits on your ``/tmp`` for example), just add the `-c` argument: manuscript will first copy the script to a safe place, then do the whole dance.
 
 Contribute
 ----------
