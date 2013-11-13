@@ -6,10 +6,11 @@ Just add a line of the form "#deps: requests docopt pathlib" to your script,
 and manuscript will install them in a virtualenv and create a wrapper.
 
 Usage:
-  manuscript install SCRIPT [-i INTERPRETER -c]
+  manuscript install SCRIPT [-e ENV -i INTERPRETER -c]
   manuscript check-deps
 
 Options:
+  -e ENV          The name of the virtualenv to use
   -i INTERPRETER  Specify the interpreter to use, otherwise,
                   it's guessed from the script's shebang.
   -c              Copy the script so the original can be deleted
@@ -37,16 +38,19 @@ def initialize():
 class Env:
     """One of the virtualenv manipulated by manuscript"""
 
-    def __init__(self, name, python='python'):
+    def __init__(self, name):
         """Creates a virtualenv with the given name using the given python
         interpreter.
         The ability to manipulate names is not yet given in the cli."""
         self.name = name
         self.dir = ENVS_DIR[name]
-        self.python = python
 
-        if not self.dir.exists():
-            subprocess.check_call(['virtualenv', '-p', self.python,
+    def created(self):
+        return self.dir.exists()
+
+    def ensure_created(self, interpreter):
+        if not self.created():
+            subprocess.check_call(['virtualenv', '-p', interpreter,
                                    str(self.dir)])
 
     def bin_path(self, bin):
@@ -60,6 +64,13 @@ class Env:
                                   + pkgs)
 
 
+def default_env(interpreter):
+    name = 'default-{}'.format(interpreter)
+    env = Env(name)
+    env.ensure_created(interpreter)
+    return env
+
+
 SCRIPT_TEMPLATE = """#!/bin/sh
 INTERPRETER={}
 FILE={}
@@ -70,13 +81,13 @@ $INTERPRETER $FILE $*
 class Script:
     """One of the scripts manipulated by manuscript"""
 
-    def __init__(self, script, env=None, interpreter=None, copy=False):
-        """Creates a script attached to the given environment.  If none is
-        given, choose one for the given interpreter, or try to guess it from
-        the script shebang."""
+    def __init__(self, script, env, copy=False):
+        """Creates a script attached to the given environment.  If copy if True,
+        first copy this script instead of just linking it"""
 
         self.path = Path(script).resolve()
         self.name = self.path.name
+        self.env = env
 
         if copy:
             shutil.copy(str(self.path), str(COPIES_DIR))
@@ -85,28 +96,6 @@ class Script:
 
         if self.name.endswith('.py'):
             self.name = self.name[:-3]
-
-        if env:
-            self.env = env
-            if interpreter:
-                print('Interpreter {} ignored for script {} because an'
-                      ' env was given'.format(interpreter, script))
-        else:
-            interpreter = (interpreter or self.interpreter_from_shebang()
-                           or 'python')
-            self.env = Env(interpreter, interpreter)
-
-    def interpreter_from_shebang(self):
-        """Tries to guess the interpreter to use from the shebang of the
-        script. Returns None if none is found."""
-        with self.path.open() as f:
-            line = next(f)
-            if line.startswith('#!'):
-                if 'env' in line:
-                    return line.strip().split('env ')[1]
-                else:
-                    return line.strip().split('/')[-1]
-        return None
 
     def dependencies(self):
         """Looks for dependencies of the form "#deps: ..." in the script"""
@@ -131,13 +120,33 @@ class Script:
         print('Created {}'.format(BIN_DIR[self.name]))
 
 
+def interpreter_from_shebang(script):
+    """Tries to guess the interpreter to use from the shebang of the
+    script. Returns None if none is found."""
+    with open(script) as f:
+        line = next(f)
+        if line.startswith('#!'):
+            if 'env' in line:
+                return line.strip().split('env ')[1]
+            else:
+                return line.strip().split('/')[-1]
+    return None
+
+
+def script_without_specific_env(script_file, interpreter, copy):
+    interpreter = (interpreter or interpreter_from_shebang(script_file)
+                   or 'python')
+    env = default_env(interpreter)
+    return Script(script_file, env, copy)
+
+
 def all_scripts():
     """Return all the scripts handled by manuscript"""
     for script in BIN_DIR:
         with script.open() as f:
-            next(f)  # The sh shebang
-            env = Env(next(f).split('/')[-3])
-            script = next(f).split("'")[-2]
+            lines = f.readlines()
+            env = Env(lines[1].split('/')[-3])
+            script = lines[2].split("'")[-2]
             yield Script(script, env)
 
 
@@ -145,8 +154,21 @@ def main():
     args = docopt(__doc__)
     initialize()
     if args['install']:
-        script = Script(args['SCRIPT'], interpreter=args['-i'],
-                        copy=args['-c'])
+        if args['-e']:
+            env = Env(args['-e'])
+            if not env.created():
+                interpreter = (args['-i'] or
+                               interpreter_from_shebang(args['SCRIPT']) or
+                               'python')
+                env.ensure_created(interpreter)
+            elif args['-i']:
+                print('Interpreted provided but env "{}" already '
+                      'exists. Ignored'.format(env.name))
+            script = Script(args['SCRIPT'], env, args['-c'])
+        else:
+            script = script_without_specific_env(args['SCRIPT'],
+                                                 interpreter=args['-i'],
+                                                 copy=args['-c'])
         script.save()
     elif args['check-deps']:
         for script in all_scripts():
