@@ -16,6 +16,7 @@ Options:
   -c              Copy the script so the original can be deleted
 """
 import os
+import sys
 import subprocess
 import shutil
 from pathlib import Path
@@ -41,7 +42,16 @@ class Env:
     def __init__(self, name):
         """Creates a virtualenv with the given name."""
         self.name = name
-        self.dir = ENVS_DIR[name]
+        if name.startswith('workon:'):
+            try:
+                workon_dir = Path(os.environ['WORKON_HOME'])
+            except KeyError:
+                print("'WORKON_HOME' environment variable not found, cannot "
+                      "use virtualenv-wrapper env.")
+                sys.exit(-1)
+            self.dir = workon_dir[name[len('workon:'):]]
+        else:
+            self.dir = ENVS_DIR[name]
 
     def created(self):
         return self.dir.exists()
@@ -49,6 +59,11 @@ class Env:
     def ensure_created(self, interpreter):
         """Ensures the env in created. If not, create it with interpreter"""
         if not self.created():
+            if self.name.startswith('workon:'):
+                print('Cannot create virtualenv-wrapper env, please create it '
+                      'yourself with "mkvirtualenv {}"'
+                      .format(self.name[len('workon:'):]))
+                sys.exit(-1)
             subprocess.check_call(['virtualenv', '-p', interpreter,
                                    str(self.dir)])
 
