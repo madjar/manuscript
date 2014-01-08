@@ -31,7 +31,7 @@ You can also install manuscript using manuscript! For this, use this line get ma
 
 Once it's done, I recommend you add ``~/.manuscript/bin/`` to your path, to make it easier to access installed scripts.
 
-Manuscript requires python 3.
+Manuscript requires python 3 to work (but is able to handle scripts written for any python version or intepreter).
 
 .. _`pypi`: https://pypi.python.org/pypi/manuscript
 
