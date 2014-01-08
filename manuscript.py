@@ -39,9 +39,7 @@ class Env:
     """One of the virtualenv manipulated by manuscript"""
 
     def __init__(self, name):
-        """Creates a virtualenv with the given name using the given python
-        interpreter.
-        The ability to manipulate names is not yet given in the cli."""
+        """Creates a virtualenv with the given name."""
         self.name = name
         self.dir = ENVS_DIR[name]
 
@@ -49,6 +47,7 @@ class Env:
         return self.dir.exists()
 
     def ensure_created(self, interpreter):
+        """Ensures the env in created. If not, create it with interpreter"""
         if not self.created():
             subprocess.check_call(['virtualenv', '-p', interpreter,
                                    str(self.dir)])
@@ -65,6 +64,7 @@ class Env:
 
 
 def default_env(interpreter):
+    """Returns the default env for an interpreter"""
     name = 'default-{}'.format(interpreter)
     env = Env(name)
     env.ensure_created(interpreter)
@@ -134,6 +134,8 @@ def interpreter_from_shebang(script):
 
 
 def script_without_specific_env(script_file, interpreter, copy):
+    """Returns a Script created using a fefault interpreter, guess which if
+    necessary"""
     interpreter = (interpreter or interpreter_from_shebang(script_file)
                    or 'python')
     env = default_env(interpreter)
@@ -154,7 +156,7 @@ def main():
     args = docopt(__doc__)
     initialize()
     if args['install']:
-        if args['-e']:
+        if args['-e']:  # A name is given
             env = Env(args['-e'])
             if not env.created():
                 interpreter = (args['-i'] or
@@ -165,7 +167,7 @@ def main():
                 print('Interpreted provided but env "{}" already '
                       'exists. Ignored'.format(env.name))
             script = Script(args['SCRIPT'], env, args['-c'])
-        else:
+        else:  # No name, use default env
             script = script_without_specific_env(args['SCRIPT'],
                                                  interpreter=args['-i'],
                                                  copy=args['-c'])
