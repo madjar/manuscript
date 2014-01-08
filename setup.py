@@ -12,7 +12,7 @@ requires = [
 
 setup(
     name='manuscript',
-    version='0.1.0',
+    version='0.2.0',
     description='Manuscript helps you manage your python scripts and their dependencies',
     long_description=readme + '\n\n' + history,
     author='Georges Dubus',
