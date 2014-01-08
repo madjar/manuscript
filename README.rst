@@ -50,6 +50,10 @@ The virtualenv will use the interpreter mentioned in the script's shebang, falli
 
   manuscript install some_awesome_script.py -i pypy
 
+If you don't want a script to share the default virtualenv with other scripts, you can specify a virtualenv name in which to install the script (it will be created if needed)::
+
+  manuscript install some_awesome_script.py -e awesome-venv
+
 If you edit you script to add more dependencies, just run::
 
   manuscript check-deps
