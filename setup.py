@@ -7,7 +7,7 @@ history = open('HISTORY.rst').read().replace('.. :changelog:', '')
 
 requires = [
     'docopt',
-    'pathlib',
+    'pathlib>=0.97',
     ]
 
 setup(

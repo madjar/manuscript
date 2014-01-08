@@ -27,9 +27,11 @@ You can get it on `pypi`_ with the usual ``pip install manuscript``.
 
 You can also install manuscript using manuscript! For this, use this line get manuscript and its dependencies, and use manuscript to install itself::
 
-    cd /tmp && wget https://bitbucket.org/pitrou/pathlib/raw/b393963cdf9dd02b13fe5ac53709f4d4bc48363a/pathlib.py https://raw.github.com/docopt/docopt/0.6.1/docopt.py https://raw.github.com/madjar/manuscript/master/manuscript.py && python3 manuscript.py install -c manuscript.py
+    cd /tmp && wget https://bitbucket.org/pitrou/pathlib/raw/e39c980b59a9705fe60f24e36cb202771af88256/pathlib.py https://raw.github.com/docopt/docopt/0.6.1/docopt.py https://raw.github.com/madjar/manuscript/master/manuscript.py && python3 manuscript.py install -c manuscript.py
 
 Once it's done, I recommend you add ``~/.manuscript/bin/`` to your path, to make it easier to access installed scripts.
+
+Manuscript requires python 3.
 
 .. _`pypi`: https://pypi.python.org/pypi/manuscript
 

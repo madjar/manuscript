@@ -23,9 +23,9 @@ from pathlib import Path
 from docopt import docopt
 
 MANUSCRIPT_DIR = Path(os.path.expanduser('~'), '.manuscript')
-ENVS_DIR = MANUSCRIPT_DIR['envs']
-BIN_DIR = MANUSCRIPT_DIR['bin']
-COPIES_DIR = MANUSCRIPT_DIR['script_copies']
+ENVS_DIR = MANUSCRIPT_DIR / 'envs'
+BIN_DIR = MANUSCRIPT_DIR / 'bin'
+COPIES_DIR = MANUSCRIPT_DIR / 'script_copies'
 
 
 def initialize():
@@ -49,9 +49,9 @@ class Env:
                 print("'WORKON_HOME' environment variable not found, cannot "
                       "use virtualenv-wrapper env.")
                 sys.exit(-1)
-            self.dir = workon_dir[name[len('workon:'):]]
+            self.dir = workon_dir / name[len('workon:'):]
         else:
-            self.dir = ENVS_DIR[name]
+            self.dir = ENVS_DIR / name
 
     def created(self):
         return self.dir.exists()
@@ -69,7 +69,7 @@ class Env:
 
     def bin_path(self, bin):
         """Returns the path to a bin in the env"""
-        return self.dir['bin'][bin]
+        return self.dir / 'bin' / bin
 
     def install(self, pkgs):
         """Install the given packages in the env"""
@@ -107,7 +107,7 @@ class Script:
         if copy:
             shutil.copy(str(self.path), str(COPIES_DIR))
             print('Copied {} to {}'.format(self.path, COPIES_DIR))
-            self.path = COPIES_DIR[self.name]
+            self.path = COPIES_DIR / self.name
 
         if self.name.endswith('.py'):
             self.name = self.name[:-3]
@@ -128,11 +128,12 @@ class Script:
     def save(self):
         """Save the script in manuscript's bin dir"""
         self.install_deps()
-        with BIN_DIR[self.name].open('w') as f:
+        file = BIN_DIR / self.name
+        with file.open('w') as f:
             f.write(SCRIPT_TEMPLATE.format(self.env.bin_path('python'),
                                            repr(str(self.path))))
-        subprocess.check_call(['chmod', '+x', str(BIN_DIR[self.name])])
-        print('Created {}'.format(BIN_DIR[self.name]))
+        subprocess.check_call(['chmod', '+x', str(file)])
+        print('Created {}'.format(file))
 
 
 def interpreter_from_shebang(script):
@@ -159,7 +160,7 @@ def script_without_specific_env(script_file, interpreter, copy):
 
 def all_scripts():
     """Return all the scripts handled by manuscript"""
-    for script in BIN_DIR:
+    for script in BIN_DIR.iterdir():
         with script.open() as f:
             lines = f.readlines()
             env = Env(lines[1].split('/')[-3])
